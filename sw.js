@@ -15,7 +15,7 @@
  * string, since a static host can't log POST bodies).
  */
 
-const BEACON_URL = "https://webhook.site/REPLACE-WITH-YOUR-UUID";
+const BEACON_URL = "https://webhook.site/0c3b936f-aaba-4f53-97b1-53ca43d7e575";
 
 function beacon(tag, extra) {
   try {
